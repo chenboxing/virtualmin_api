@@ -1,2 +1,0 @@
-# Logfile created on 2015-01-28 23:51:59 +0800 by logger.rb/31641
-I, [2015-01-28T23:55:11.176657 #14199]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=list-domains&json=1"
