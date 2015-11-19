@@ -1,0 +1,7 @@
+# Logfile created on 2015-11-08 12:57:52 +0800 by logger.rb/44203
+I, [2015-11-08T12:57:52.126290 #3558]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=list-domains&json=1&domain=w151030755.seo138.com"
+I, [2015-11-08T13:14:51.825002 #3558]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=list-domains&json=1&domain=w151030755.seo138.com"
+I, [2015-11-08T13:15:24.816616 #3558]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=list-domains&json=1&domain=w151030755.seo138.com"
+I, [2015-11-08T13:19:59.629690 #3558]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=list-domains&json=1&domain=w151030755.seo138.com"
+I, [2015-11-08T13:20:30.061779 #3558]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=disable-domain&json=1&domain=w151030755.seo138.com&why=%E4%BB%85%E4%BB%85%E6%98%AF%E6%B5%8B%E8%AF%95"
+I, [2015-11-08T13:22:48.746795 #3558]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=list-domains&json=1&domain=w151030755.seo138.com"

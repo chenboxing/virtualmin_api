@@ -1,0 +1,6 @@
+# Logfile created on 2015-11-19 00:28:58 +0800 by logger.rb/44203
+I, [2015-11-19T00:28:58.441946 #1378]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=list-domains&json=1&domain=w151030755.seo138.com"
+I, [2015-11-19T00:29:11.171650 #1378]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=list-domains&json=1&domain=w151030755.seo138.com"
+I, [2015-11-19T00:30:32.944363 #1378]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=list-domains&json=1&domain=w151030755.seo138.com"
+I, [2015-11-19T00:31:02.712461 #1378]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=list-domains&json=1&domain=w151030755.seo138.com"
+I, [2015-11-19T00:34:16.718367 #33465]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=list-domains&json=1&domain=axisoft.cn"
