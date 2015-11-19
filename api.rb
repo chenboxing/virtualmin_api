@@ -42,8 +42,7 @@ webrick_options = {
     :SSLPrivateKey      => pkey
 }
 
-class MyServer < Sinatra::Base
- set :bind, '192.168.1.60' 
+class MyServer < Sinatra::Base 
  before do
     content_type :json
     #(status,message) = authenticate()
@@ -76,16 +75,17 @@ class MyServer < Sinatra::Base
 
 
     get '/hosting/show' do
-      api_method = 'list-domains'
+      api_method = 'list-domains'      
       arguments = ['domain']
       data_json = call_remote_api(api_method, arguments)
-      #p data_json
       data_json
     end
     
-    get '/user/show' do 
-      api_method = 'list-users'
-      arguments = ['domain','user','include-owner']
+    # 禁用或启用虚拟主机某些功能    
+    # 当前仅支持awstats和mysql
+    put '/hosting/feature' do       
+      api_method = params['enabled'] == "1" ? 'enable-feature' : "disable-feature"      
+      arguments = ['domain','mysql','virtualmin-awstats']
       data_json = call_remote_api(api_method, arguments)
       data_json
     end   
@@ -168,14 +168,14 @@ class MyServer < Sinatra::Base
 
     put '/hosting/ftp_user_disable' do
       api_method = 'modify-user'
-      arguments = ['domain','user','ftp-disable','disable']
+      arguments = ['domain','user','disable']
       data_json = call_remote_api(api_method, arguments)
       data_json	
     end
     
     put '/hosting/ftp_user_enable' do
       api_method = 'modify-user'
-      arguments = ['domain','user','ftp-enable','enable']
+      arguments = ['domain','user','enable']
       data_json = call_remote_api(api_method, arguments)
       data_json	
     end
@@ -265,7 +265,7 @@ class MyServer < Sinatra::Base
    post '/hosting/database/new' do
      api_method = 'create-database'      
      arguments = ['domain','name','type']
-     data_json = call_remote_api(api_method, arguments)     
+     data_json = call_remote_api(api_method, arguments)
      data_json
      
    end     
@@ -274,42 +274,35 @@ class MyServer < Sinatra::Base
    get '/httpd/call' do 
      action = params[:action]
      action_parameters = params[:action_parameters]
-     #
-     perl_script_with_args = "./httpd.pl #{action} #{action_parameters}"
-     # p perl_script_with_args
-     result_json_text = IO.popen(perl_script_with_args, 'w+') do |pipe|
-        pipe.close_write
-        pipe.read
-      end
+     perl_script_with_args = "perl ./httpd.pl #{action} #{action_parameters}"   
      
-      result_json_text
-      #data_json = JSON.parse(result_json_text.chomp)
-      #p data_json
-   end    
-      
-   #调用rake task,执行rails网站任务
- get '/rake/task' do 
-   
-    username = params[:username]
-    task_name = params[:task_name]
-    
-    sh_script_with_args = "su - #{username} -c 'cd /home/#{username} && rake RAILS_ENV=development remote:#{task_name}'"
-    
-    #p sh_script_with_args
-    
-    result_print_text = IO.popen(sh_script_with_args, 'w+') do |pipe|
+     result_json_text = IO.popen(perl_script_with_args, 'w+') do |pipe|
        pipe.close_write
        pipe.read
-    end
-
-    
-    rx = /BEGIN_JSON(.*)END_JSON/m
-    m = rx.match(result_print_text)
-    result_json_text = m[1] if m
-    result_json_text                        
- end 
- 
-    
+     end
+                 
+     data_json = JSON.parse(result_json_text)
+     data_json 
+   end    
+      
+      #调用rake task,执行rails网站任务
+   get '/rake/task' do 
+     
+      username = params[:username]
+      task_name = params[:task_name]
+      
+      sh_script_with_args = "cd /home/#{username} && rake RAILS_ENV=development remote:#{task_name}"
+      
+      result_print_text = IO.popen(sh_script_with_args, 'w+') do |pipe|
+         pipe.close_write
+         pipe.read
+      end
+     
+      rx = /BEGIN_JSON(.*)END_JSON/m
+      m = rx.match(result_print_text)
+      result_json_text = m[1] if m
+      result_json_text                        
+   end 
    
 
     def call_remote_api(api_method, opts=[])
