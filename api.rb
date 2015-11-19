@@ -217,7 +217,7 @@ class MyServer < Sinatra::Base
         end
         
         #手工备份文件
-        Dir.glob("/backup/custom/#{domain}_*_#{}.tar.gz").each do |file_path|
+        Dir.glob("/backup/custom/#{domain}_*_#{content_type}.tar.gz").each do |file_path|
           file_name = File.basename(file_path).sub(".tar.gz","")
           result[:data] << {name:file_name,size:File.size(file_path)}                            
         end
@@ -246,7 +246,7 @@ class MyServer < Sinatra::Base
     
     # 下载文件
     # 下载mysql备份或网站备份
-    put 'hosting/download' do 
+    get '/hosting/download' do 
       
        backup_type =  params[:backup_type]  # schedule or custom
        domain = params[:domain]
@@ -261,7 +261,9 @@ class MyServer < Sinatra::Base
        when "schedule"
          file_path = "/backup/schedule/#{content_type}/#{file_name}/#{domain}.tar.gz"
        end     
-            
+       
+       p "FILE_PATH:#{file_path}"
+
        send_file file_path, :filename => File.basename(file_path), :type => 'Application/octet-stream'
              
     end   
@@ -280,8 +282,9 @@ class MyServer < Sinatra::Base
       elsif params[:feature] == 'dir'
         dest_path = "/backup/custom/#{params[:domain]}_#{Time.now.strftime("%y%m%d%s")}_site.tar.gz"
       end   
-      params[:dest] = dest_path
-              
+      params["dest"] = dest_path
+      p "DEST:#{params[:dest]}"
+
       arguments = ['domain','dest','feature']
       data_json = call_remote_api(api_method, arguments)
       data_json	
