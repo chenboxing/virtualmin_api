@@ -197,11 +197,91 @@ class MyServer < Sinatra::Base
       data_json	
     end   
     
+    
+    #获取备份文件列表
+    #包括网站内容，数据库内容
+    #系统备份和用户手工备份内容
+    get '/hosting/backup/list' do 
+      
+   
+      domain = params[:domain]
+      
+      result = {status: 'success',data:[]}
+      content_type = params[:file_content_type]  # mysql or site
+      
+
+        #自动备份文件
+        Dir.glob("/backup/schedule/#{content_type}/*/#{domain}.tar.gz").each do |file_path|
+          file_name = file_path.split("/")[-2] #获取目录名字
+          result[:data] << {name:file_name,size:File.size(file_path)}                  
+        end
+        
+        #手工备份文件
+        Dir.glob("/backup/custom/#{domain}_*_#{}.tar.gz").each do |file_path|
+          file_name = File.basename(file_path).sub(".tar.gz","")
+          result[:data] << {name:file_name,size:File.size(file_path)}                            
+        end
+                  
+      result.to_json  
+      
+    end   
+    
+    # 删除文件
+    put '/hosting/backup/delete' do 
+      
+      domain = params[:domain]    
+      file_name = params[:file_name] ##{Time.now.strftime("%y%m%d%s")}
+      file_type = params[:file_content_type] #mysql or site
+      file_path = "/backup/custom/#{domain}_#{file_name}_#{file_type}.tar.gz"
+      
+      if File.exist?(file_path)
+        File.delete(file_path)
+      end   
+      
+      result = {status: 'success',data:{            
+        }}        
+      result.to_json  
+                  
+    end 
+    
+    # 下载文件
+    # 下载mysql备份或网站备份
+    put 'hosting/download' do 
+      
+       backup_type =  params[:backup_type]  # schedule or custom
+       domain = params[:domain]
+       file_name = params[:file_name]  #对于custom,应该是##{Time.now.strftime("%y%m%d%s")}
+                                       # 对于schedule,应该是目录名称  
+       content_type = params[:file_content_type]  #mysql site logfile
+       
+       
+       case backup_type
+       when "custom"                  
+         file_path = "/backup/custom/#{domain}_#{file_name}_#{content_type}.tar.gz"
+       when "schedule"
+         file_path = "/backup/schedule/#{content_type}/#{file_name}/#{domain}.tar.gz"
+       end     
+            
+       send_file file_path, :filename => File.basename(file_path), :type => 'Application/octet-stream'
+             
+    end   
+    
+    
     # 主机网站内容备份
     # dest 服务器所在路径，比如/backup/seo138.com.tar.gz
     # 只备份主机网站内容，只需要设置feature feature=dir
+    # 只备份数据库内容  只需设置feature=mysql
     get '/hosting/backup' do 
       api_method = 'backup-domain'      
+      #mysqldump -uroot -p -d -R w151030755 > /root/w151030755.sql
+      dest_path = ""
+      if params[:feature] == "mysql" 
+        dest_path = "/backup/custom/#{params[:domain]}_#{Time.now.strftime("%y%m%d%s")}_mysql.tar.gz"
+      elsif params[:feature] == 'dir'
+        dest_path = "/backup/custom/#{params[:domain]}_#{Time.now.strftime("%y%m%d%s")}_site.tar.gz"
+      end   
+      params[:dest] = dest_path
+              
       arguments = ['domain','dest','feature']
       data_json = call_remote_api(api_method, arguments)
       data_json	
