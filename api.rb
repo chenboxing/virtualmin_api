@@ -359,13 +359,18 @@ class MyServer < Sinatra::Base
      action_parameters = params[:action_parameters]
      perl_script_with_args = "perl ./httpd.pl #{action} #{action_parameters}"   
      
-     result_json_text = IO.popen(perl_script_with_args, 'w+') do |pipe|
+     result_print_text = IO.popen(perl_script_with_args, 'w+') do |pipe|
        pipe.close_write
        pipe.read
      end
-                 
-     data_json = JSON.parse(result_json_text)
-     data_json 
+     
+     p "HTTPD_RESULT: #{result_print_text}"
+     rx = /BEGIN_JSON(.*)END_JSON/m
+     m = rx.match(result_print_text)
+     result_json_text = m[1] if m                    
+     #data_json = JSON.parse(result_json_text)
+     #data_json 
+     result_json_text
    end    
       
       #调用rake task,执行rails网站任务
@@ -374,7 +379,7 @@ class MyServer < Sinatra::Base
       username = params[:username]
       task_name = params[:task_name]
       
-      sh_script_with_args = "cd /home/#{username} && rake RAILS_ENV=development remote:#{task_name}"
+      sh_script_with_args = "cd /home/#{username} && su #{username} -c 'rake RAILS_ENV=development remote:#{task_name}'"
       
       result_print_text = IO.popen(sh_script_with_args, 'w+') do |pipe|
          pipe.close_write

@@ -61,7 +61,7 @@ use Switch;
    
    my $json_result = $json->pretty->encode (\%ret);
    
-   print $json_result,"\n";
+   print "BEGIN_JSON",$json_result,"END_JSON","\n";
 	
 	
 
@@ -288,6 +288,7 @@ sub get_rails_environment{
 
     my %result = (ret_code=>-1,message=>'');
 	my $server_name = $_[0];	
+
 	my $vh = get_vhost($server_name);
 	
 	if(!defined($vh)){
@@ -295,6 +296,8 @@ sub get_rails_environment{
 		return %result;
 	}	
 	
+	
+
 	my $env = $vh->directive("RailsEnv")->value;
 	$result{ret_code} = 0;
 	$result{data} = $env;	
