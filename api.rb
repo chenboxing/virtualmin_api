@@ -253,16 +253,13 @@ class MyServer < Sinatra::Base
        file_name = params[:file_name]  #对于custom,应该是##{Time.now.strftime("%y%m%d%s")}
                                        # 对于schedule,应该是目录名称  
        content_type = params[:file_content_type]  #mysql site logfile
-       
-       
+
        case backup_type
        when "custom"                  
          file_path = "/backup/custom/#{domain}_#{file_name}_#{content_type}.tar.gz"
        when "schedule"
          file_path = "/backup/schedule/#{content_type}/#{file_name}/#{domain}.tar.gz"
-       end     
-       
-       p "FILE_PATH:#{file_path}"
+       end
 
        send_file file_path, :filename => File.basename(file_path), :type => 'Application/octet-stream'
              
@@ -391,7 +388,60 @@ class MyServer < Sinatra::Base
       result_json_text = m[1] if m
       result_json_text                        
    end 
-   
+
+   #重设建站平台网站模块，生成Gemfile
+   #  params[:username]  #用户帐号
+   #  params[:git_prefix]  #git托管域名/用户名，比如git.coding.net/move888
+   #  params[:plugins][{module_key:'',version:{}}] #项目所使用到的模块和版本号
+   post '/hosting/gemfile' do
+
+     username = params[:username]
+
+     filepath = "/home/#{username}/Gemfile"
+
+     new_lines = []
+
+     #清除原有的Gem命令行
+     File.open(filepath) do |f|
+
+       f.each do |line|
+         line = line.strip
+         flag = false
+         params[:plugins].each do |item|
+           module_key = item[:module_key]
+           if /^gem\s+([\'|\"])#{module_key}\1/ =~ line
+             flag = true
+             break
+           end
+         end
+         new_lines << line  unless flag
+       end
+     end
+
+     #添加模块命令行
+     gitlab_prefix = params[:git_prefix]
+     params[:plugins].each do |item|
+       module_key = item[:module_key]
+       version = item[:version]
+       gem_cmd =  "gem \"#{module_key}\", :git => \"git@#{gitlab_prefix}/#{module_key}.git\",:branch=>\"#{version}\""
+       new_lines << gem_cmd
+     end
+
+     # 重写文件
+     File.open(filepath,'w') do |f|
+       f.write new_lines.join("\n")
+       f.chown(username,username)
+     end
+
+     #重新bundle install
+     @@logger.info "run bundle install for #{username}"
+     system("cd /home/#{username} && bundle install")
+
+     result = {status: 'success',data:[]}
+     result.to_json
+
+   end
+
 
     def call_remote_api(api_method, opts=[])
        api_command = build_remote_api_url(api_method,opts)
