@@ -395,10 +395,17 @@ class MyServer < Sinatra::Base
    #  params[:plugins][{module_key:'',version:{}}] #项目所使用到的模块和版本号
    post '/hosting/gemfile' do
 
-     username = params[:username]
+     p params
+
+     username = params["username"]
 
      filepath = "/home/#{username}/Gemfile"
-
+    
+     plugins = params["plugins"]
+     if plugins.is_a?(String)
+       plugins = eval(plugins)
+     end   
+       
      new_lines = []
 
      #清除原有的Gem命令行
@@ -407,8 +414,8 @@ class MyServer < Sinatra::Base
        f.each do |line|
          line = line.strip
          flag = false
-         params[:plugins].each do |item|
-           module_key = item[:module_key]
+         plugins.each do |item|
+           module_key = item["module_key"]
            if /^gem\s+([\'|\"])#{module_key}\1/ =~ line
              flag = true
              break
@@ -419,10 +426,10 @@ class MyServer < Sinatra::Base
      end
 
      #添加模块命令行
-     gitlab_prefix = params[:git_prefix]
-     params[:plugins].each do |item|
-       module_key = item[:module_key]
-       version = item[:version]
+     gitlab_prefix = params["git_prefix"]
+     plugins.each do |item|
+       module_key = item["module_key"]
+       version = item["version"]
        gem_cmd =  "gem \"#{module_key}\", :git => \"git@#{gitlab_prefix}/#{module_key}.git\",:branch=>\"#{version}\""
        new_lines << gem_cmd
      end
@@ -430,8 +437,9 @@ class MyServer < Sinatra::Base
      # 重写文件
      File.open(filepath,'w') do |f|
        f.write new_lines.join("\n")
-       f.chown(username,username)
      end
+
+     system("chown #{username}:#{username} #{filepath}")
 
      #重新bundle install
      @@logger.info "run bundle install for #{username}"
