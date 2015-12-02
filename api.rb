@@ -439,7 +439,7 @@ class MyServer < Sinatra::Base
        f.write new_lines.join("\n")
      end
 
-     system("chown #{username}:#{username} #{filepath}")
+     #system("chown #{username}:#{username} #{filepath}")
 
      #重新bundle install
      @@logger.info "run bundle install for #{username}"
