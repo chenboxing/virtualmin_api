@@ -9,6 +9,7 @@ require 'yaml'
 require 'base64'
 require 'logger'
 require 'cgi'
+require 'uuidtools'
 
 #require "#{File.dirname(__FILE__)}/virtual_api"
 
@@ -243,11 +244,10 @@ class MyServer < Sinatra::Base
       result.to_json  
                   
     end 
-    
-    # 下载文件
-    # 下载mysql备份或网站备份
-    get '/hosting/download' do 
-      
+  
+    # Preparing guid download link file
+    get '/hosting/download_prepare' do 
+        
        backup_type =  params[:backup_type]  # schedule or custom
        domain = params[:domain]
        file_name = params[:file_name]  #对于custom,应该是##{Time.now.strftime("%y%m%d%s")}
@@ -261,7 +261,43 @@ class MyServer < Sinatra::Base
          file_path = "/backup/schedule/#{content_type}/#{file_name}/#{domain}.tar.gz"
        end
 
-       send_file file_path, :filename => File.basename(file_path), :type => 'Application/octet-stream'
+       # 生成GUID
+       guid_file_name = UUIDTools::UUID.random_create 
+       
+       # 软链接
+       link_cmd = "ln -s #{file_path} /backup/temp/#{guid_file_name}.tar.gz"
+       @@logger.info link_cmd
+       `#{link_cmd}`
+       
+       result = {status: 'success',data:[]}
+
+       result[:data] = guid_file_name 
+       result.to_json 
+    end  
+
+      
+  
+    # 下载文件
+    # 下载mysql备份或网站备份
+    get '/hosting/download' do 
+       
+       guid = params[:guid]
+       file_path = "/backup/temp/#{guid}.tar.gz"
+       
+       #判断时间，如果文件创建时间超过10分钟，退
+       if !File.exist?(file_path) || File.lstat(file_path).ctime < (Time.now - 600)
+          "文件不存在或操作已经操时"
+          @@logger.info "文件不存在或操作已经操时:#{file_path},#{File.lstat(file_path).ctime < (Time.now - 600)}"
+          return 
+       end
+                          
+       file_name = params[:file_name]
+       file_path = "/backup/temp/#{guid}.tar.gz"
+
+       
+       @@logger.info "Download file path is : #{file_path}"
+       
+       send_file file_path, :filename => file_name, :type => 'Application/octet-stream'
              
     end   
     
@@ -355,7 +391,7 @@ class MyServer < Sinatra::Base
      action = params[:action]
      action_parameters = params[:action_parameters]
      perl_script_with_args = "perl ./httpd.pl #{action} #{action_parameters}"   
-     
+     p perl_script_with_args 
      result_print_text = IO.popen(perl_script_with_args, 'w+') do |pipe|
        pipe.close_write
        pipe.read
@@ -455,6 +491,7 @@ class MyServer < Sinatra::Base
        api_command = build_remote_api_url(api_method,opts)
        output_json = `#{api_command}`
        #result = $?.success?
+       #p output_json
        output_json
     end
     

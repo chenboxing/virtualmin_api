@@ -1,4 +1,0 @@
-# Logfile created on 2015-06-11 22:35:46 +0800 by logger.rb/31641
-I, [2015-06-11T22:35:46.451336 #16777]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=list-domains&json=1"
-I, [2015-06-11T22:42:36.854183 #17754]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=list-domains&json=1"
-I, [2015-06-11T23:19:25.442416 #17754]  INFO -- : wget -O - --quiet --http-user=root --http-passwd=****** --no-check-certificate "https://127.0.0.1:10000/virtual-server/remote.cgi?program=list-domains&json=1&domain=axisoft.com"

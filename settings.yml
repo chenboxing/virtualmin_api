@@ -2,7 +2,7 @@
 virtualmin_ip: 127.0.0.1
 virtualmin_port: '10000'
 virtualmin_user: root
-virtualmin_password: bG92ZWFteTEzMTQ=\n
+virtualmin_password: bG92ZWFteTEzMTRB\n
 md5_key: days@net
 access_server_ip:
 - 211.102.90.30
