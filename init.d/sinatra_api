@@ -33,7 +33,7 @@ start(){
 	cd $DIR
 	#log_progress_msg
   #ruby ./ssl_api &> /dev/null
-  RACK_ENV='production' nohup ruby ./api.rb >> ./log.txt 2>&1 &
+  RACK_ENV='production' nohup /usr/local/bin/ruby ./api.rb >> ./log.txt 2>&1 &
   ret=$?
   
   if [ $ret == 0 ]; then
