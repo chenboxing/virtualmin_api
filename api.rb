@@ -412,13 +412,14 @@ class MyServer < Sinatra::Base
       username = params[:username]
       task_name = params[:task_name]
       
-      sh_script_with_args = "cd /home/#{username} && su #{username} -c 'rake RAILS_ENV=development remote:#{task_name}'"
-      
+      sh_script_with_args = "cd /home/#{username}/www && su #{username} -c '/usr/local/bin/rake RAILS_ENV=production remote:#{task_name}'"
+      @@logger.info "#{sh_script_with_args}" 
       result_print_text = IO.popen(sh_script_with_args, 'w+') do |pipe|
          pipe.close_write
          pipe.read
       end
-     
+      @@logger.info result_print_text 
+
       rx = /BEGIN_JSON(.*)END_JSON/m
       m = rx.match(result_print_text)
       result_json_text = m[1] if m
@@ -435,7 +436,7 @@ class MyServer < Sinatra::Base
 
      username = params["username"]
 
-     filepath = "/home/#{username}/Gemfile"
+     filepath = "/home/#{username}/www/Gemfile"
     
      plugins = params["plugins"]
      if plugins.is_a?(String)
@@ -479,7 +480,7 @@ class MyServer < Sinatra::Base
 
      #重新bundle install
      @@logger.info "run bundle install for #{username}"
-     system("cd /home/#{username} && bundle install")
+     system("cd /home/#{username}/www && bundle install")
 
      result = {status: 'success',data:[]}
      result.to_json

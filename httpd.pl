@@ -251,7 +251,7 @@ sub reformat_rails_section{
 	}	
 
 	#删除PHP相关的directive
-	my @no_use_directive_names = qw(RemoveHandler FCGIWrapper php_admin_value FcgidMaxRequestLen IPCCommTimeout);
+	my @no_use_directive_names = qw(RemoveHandler FCGIWrapper php_admin_value FcgidMaxRequestLen IPCCommTimeout RewriteEngine RewriteCond RewriteRule);
 	foreach my $directive ($vh->directive){
 		
 	    if ( grep { $_ eq  $directive->name  } @no_use_directive_names )
@@ -270,6 +270,7 @@ sub reformat_rails_section{
 						
 			$directory->add_directive(Allow=>'from all');
 			$directory->add_directive(Options=>'-MultiViews');
+                        $directory->add_directive(Include=>'conf/rails_cache.conf'); 
         }   
     }
     		
