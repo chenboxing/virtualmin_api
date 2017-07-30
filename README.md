@@ -1,0 +1,2 @@
+# virtualmin_api
+ 基于Webmin/Virtualmin(Linux服务器管理系统/虚拟主机控制面板)二次开发，利用ruby轻型mvc框架sinatra提供Linux服务器网站和数据库管理的常用Restful API接口，调用ResultAPI可轻松管理Apache网站和MySQL数据库。
